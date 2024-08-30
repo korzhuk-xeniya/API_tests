@@ -11,7 +11,7 @@ public class ReqresTests {
     private final static String URL = "https://reqres.in/";
 
     @Test
-    public void case1_successRegisrationAndWithoutPassword(){
+    public void testCase1_successRegisration(){
         Specifications.installSpecification(Specifications.requestSpecifications(URL),
                 Specifications.responseSpecification200());
         Integer id = 4;
@@ -25,12 +25,29 @@ public class ReqresTests {
                 .post("api/register")
                 .then().log().all()
                 .extract().as(SuccessRegister.class);
-
+        Assertions.assertNotNull(successRegister.getId());
+        Assertions.assertNotNull(successRegister.getToken());
         Assertions.assertEquals(id,successRegister.getId());
         Assertions.assertEquals(token,successRegister.getToken());
     }
     @Test
-    public void case2_returnListOfUsersAndEmailEndedReqresIn(){
+    public void testCase1_regisrationWithoutPassword(){
+        Specifications.installSpecification(Specifications.requestSpecifications(URL),
+                Specifications.responseSpecification400());
+        String email = "sydney@fife";
+        String password = "";
+        Register user = new Register(email, password);
+        UnsuccessfulRegister unsuccessfulRegister = given()
+                .body(user)
+                .when()
+                .post("api/register")
+                .then().log().all()
+                .extract().as(UnsuccessfulRegister.class);
+
+        Assertions.assertEquals("Missing password", unsuccessfulRegister.getError() );
+    }
+    @Test
+    public void testCase2_returnListOfUsersAndEmailEndedReqresIn(){
         Specifications.installSpecification(Specifications.requestSpecifications(URL),
                 Specifications.responseSpecification200());
         List<UserData> users = given()
