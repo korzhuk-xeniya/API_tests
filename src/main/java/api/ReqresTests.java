@@ -3,6 +3,7 @@ package api;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.time.Clock;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
@@ -67,5 +68,22 @@ public class ReqresTests {
                 .delete("api/users/2")
                 .then().log().all();
 
+    }
+    @Test
+    public void testCase4_updateUserAndCompareDate(){
+        Specifications.installSpecification(Specifications.requestSpecifications(URL),
+                Specifications.responseSpecification200());
+        String name = "morpheus";
+        String job = "zion resident";
+        UpdateUser user = new UpdateUser(name, job);
+        UpdateUserResponse userResponse = given()
+                .body(user)
+                .when()
+                .patch("api/users/2")
+                .then().log().all()
+                .extract().as(UpdateUserResponse.class);
+        String regex = "(.{5})$";
+        String currentTime = Clock.systemUTC().instant().toString().replaceAll(regex, "");
+        Assertions.assertNotNull(currentTime, userResponse.getUpdatedAt().replaceAll(regex, ""));
     }
 }
